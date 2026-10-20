@@ -1,0 +1,25 @@
+{
+  "name": "commit-city",
+  "version": "0.1.0",
+  "description": "Turn any GitHub repository into a 3D city and replay its history.",
+  "private": true,
+  "type": "module",
+  "license": "MIT",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "d3-hierarchy": "^3.1.2",
+    "three": "^0.186.1"
+  },
+  "devDependencies": {
+    "@types/d3-hierarchy": "^3.1.7",
+    "@types/three": "^0.186.0",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.4",
+    "vitest": "^5.0.5"
+  }
+}
