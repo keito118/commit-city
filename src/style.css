@@ -61,6 +61,21 @@ button[type="submit"] { background: var(--accent); border-color: var(--accent); 
 .row select { padding: 3px 6px; margin-left: 4px; }
 a { color: var(--accent); }
 
+.file-button { color: var(--accent); cursor: pointer; text-decoration: underline; }
+
+details { margin-top: 10px; color: var(--muted); }
+details summary { cursor: pointer; }
+details p { margin: 6px 0; font-size: 12px; }
+#token-input {
+  width: 100%;
+  padding: 6px 8px;
+  border-radius: 6px;
+  border: 1px solid #3a404c;
+  background: #0d0f14;
+  color: inherit;
+  font: inherit;
+}
+
 #status { margin: 10px 0 0; color: var(--muted); min-height: 1.2em; }
 #status.error { color: #ff8f8f; }
 

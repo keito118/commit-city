@@ -30,3 +30,29 @@ export function languageOf(path: string): LanguageGroup {
   if (dot <= 0) return "other";
   return GROUPS[base.slice(dot + 1)] ?? "other";
 }
+
+/** The kind of building a file becomes. */
+export type BuildingKind =
+  | "tower" // compiled languages: glass high-rise
+  | "office" // scripting and web code: concrete office block
+  | "house" // docs: house with a pitched roof
+  | "warehouse" // data and config: windowless warehouse
+  | "hall" // media: brick hall
+  | "shed"; // everything else
+
+const KIND_BY_GROUP: Record<LanguageGroup, BuildingKind> = {
+  systems: "tower",
+  jvm: "tower",
+  script: "office",
+  python: "office",
+  web: "office",
+  shell: "office",
+  docs: "house",
+  data: "warehouse",
+  media: "hall",
+  other: "shed",
+};
+
+export function buildingKindOf(path: string): BuildingKind {
+  return KIND_BY_GROUP[languageOf(path)];
+}
