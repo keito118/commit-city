@@ -26,13 +26,13 @@
         </label>
         <label class="file-button">Open snapshot <input id="file-input" type="file" accept=".json,application/json" hidden /></label>
       </div>
-      <details>
+      <details id="token-details">
         <summary>GitHub token (optional)</summary>
-        <p>Without a token, heights come from the latest 25 commits. A token reads up to 400 and opens private repositories. It is kept only in this browser.</p>
+        <p>Without a token GitHub allows 60 requests an hour, about two cities, and heights come from the latest 25 commits. A token raises that to 5,000 an hour, reads up to 400 commits and opens private repositories. It is kept only in this browser. A fine-grained token with read-only access is enough.</p>
         <input id="token-input" type="password" placeholder="github_pat_…" autocomplete="off" spellcheck="false" />
       </details>
       <div class="row">
-        <span class="examples">Try: <a href="?repo=vitejs/vite">vite</a> · <a href="?repo=mrdoob/three.js">three.js</a> · <a href="?repo=expressjs/express">express</a></span>
+        <span class="examples" id="examples"></span>
       </div>
       <p id="status" role="status"></p>
     </header>
