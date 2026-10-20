@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>commit-city</title>
+    <meta name="description" content="Turn any GitHub repository into a 3D city." />
+    <link rel="stylesheet" href="./src/style.css" />
+  </head>
+  <body>
+    <div id="city"></div>
+
+    <header class="panel" id="controls">
+      <h1>commit-city</h1>
+      <form id="repo-form">
+        <input id="repo-input" name="repo" placeholder="owner/repo or GitHub URL" autocomplete="off" spellcheck="false" />
+        <button type="submit">Build</button>
+      </form>
+      <div class="row">
+        <label>Theme <select id="theme-select"></select></label>
+        <span class="examples">Try: <a href="?repo=vitejs/vite">vite</a> · <a href="?repo=mrdoob/three.js">three.js</a> · <a href="?repo=expressjs/express">express</a></span>
+      </div>
+      <p id="status" role="status"></p>
+    </header>
+
+    <aside class="panel" id="info" hidden></aside>
+    <aside class="panel" id="legend"></aside>
+
+    <script type="module" src="./src/main.ts"></script>
+  </body>
+</html>
