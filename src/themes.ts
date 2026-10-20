@@ -33,6 +33,37 @@ export interface Theme {
   exposure: number;
 }
 
+/** Real-world facade and roof colors, shared by the daytime themes. */
+const CITY_COLORS: Theme["kinds"] = {
+  tower: {
+    walls: ["#5b87a8", "#4d7c8a", "#6f9fb8", "#3f6f7f", "#7a9a78", "#9a8463", "#5e6f9a", "#86a9c4"],
+    roofs: ["#d9dcde", "#9aa3a8", "#6f8f72", "#c9b28a", "#7c8a99"],
+  },
+  office: {
+    walls: [
+      "#e8d9b5", "#d98f6a", "#c9785c", "#e6c48a", "#a9c2a0", "#9fb8cc",
+      "#e3a99a", "#f0ece2", "#b7a6c9", "#c2b280", "#d4b8a0", "#8fb3a8",
+    ],
+    roofs: ["#e8e6e1", "#b8bcbf", "#7fa36b", "#c96f4a", "#5f8a9a", "#8a8f94", "#d8c9a8"],
+  },
+  house: {
+    walls: ["#f6e7c1", "#f2c6a0", "#e8a87c", "#c9d9b0", "#bcd4e6", "#f4f1ea", "#e9c9d3", "#d9b38c"],
+    roofs: ["#b5523b", "#8f3e2c", "#4b6a8a", "#3f5e4a", "#6b4a3a", "#a8452f", "#c7743f"],
+  },
+  warehouse: {
+    walls: ["#c9cfd2", "#9fb3bf", "#c7b98f", "#8fa6a0", "#b9a58e", "#d6d0c4", "#a7b9d1"],
+    roofs: ["#a6adb2", "#7b8d99", "#b5bdc1", "#8fa38a"],
+  },
+  hall: {
+    walls: ["#b5603f", "#a14f38", "#c4744f", "#8f4a3a", "#c98a5a"],
+    roofs: ["#2f4f4f", "#5a6e6a", "#7d5a46", "#4f6d7a"],
+  },
+  shed: {
+    walls: ["#d8cbb0", "#b9c4a8", "#c8b6a0", "#a8b8c8", "#d9a98a"],
+    roofs: ["#8a8a8a", "#6f7f6a", "#9a6a52"],
+  },
+};
+
 export const THEMES: Theme[] = [
   {
     id: "daylight",
@@ -43,14 +74,7 @@ export const THEMES: Theme[] = [
     plates: ["#b9b6ae", "#c4c1b9", "#cfccc4", "#d8d5ce"],
     sun: { color: "#fff4e0", intensity: 2.4, elevation: 0.9 },
     ambient: { sky: "#dbe8f5", ground: "#7d7466", intensity: 1.3 },
-    kinds: {
-      tower: { walls: ["#6b8496", "#5d7686", "#7891a1", "#56707f", "#8398a4"], roofs: ["#3f4449", "#4a4f54"] },
-      office: { walls: ["#cfc8bb", "#bdb6aa", "#ddd6c8", "#aca598", "#c9bca5", "#a39f98"], roofs: ["#5d6063", "#6c6f71"] },
-      house: { walls: ["#f0e8d9", "#e6dccb", "#d9ccb6", "#f3f0ea", "#d2c7b4"], roofs: ["#9c4a35", "#7f3b2c", "#585d64", "#474c54", "#8a5a3c"] },
-      warehouse: { walls: ["#a9aca9", "#9ca5a8", "#b7b2a6", "#8f9597"], roofs: ["#6e7376", "#7d8183"] },
-      hall: { walls: ["#9d5c46", "#8b4c3b", "#a9684e", "#7e4b3d"], roofs: ["#4f5053", "#5c5d60"] },
-      shed: { walls: ["#bfb8ac", "#aaa59b", "#c7c2b8"], roofs: ["#6a6a6a", "#5a5a5a"] },
-    },
+    kinds: CITY_COLORS,
     windows: { glass: "#34495c", lit: ["#ffe2a8", "#fff4d6"], litShare: 0, glow: 0 },
     shadows: true,
     exposure: 1,
@@ -64,14 +88,7 @@ export const THEMES: Theme[] = [
     plates: ["#8d8580", "#968f89", "#a09892", "#a9a19b"],
     sun: { color: "#ffb37a", intensity: 1.6, elevation: 0.25 },
     ambient: { sky: "#f0c0a8", ground: "#5a4a50", intensity: 1.4 },
-    kinds: {
-      tower: { walls: ["#5b6a78", "#4e5d6a", "#687786"], roofs: ["#2f3236", "#383b40"] },
-      office: { walls: ["#b9ab9c", "#a89c8f", "#c4b6a5", "#9a8f85"], roofs: ["#4b4c4f", "#57585a"] },
-      house: { walls: ["#e1cdb6", "#d6c1aa", "#cbb59e"], roofs: ["#843d2e", "#6d3327", "#4b4f57"] },
-      warehouse: { walls: ["#8f8f8c", "#848a8c", "#9a958a"], roofs: ["#5a5e61"] },
-      hall: { walls: ["#8a4f3d", "#7a4234", "#94593f"], roofs: ["#3f4043"] },
-      shed: { walls: ["#a39b90", "#958f86"], roofs: ["#555555"] },
-    },
+    kinds: CITY_COLORS,
     windows: { glass: "#3a3f4a", lit: ["#ffcf7a", "#ffe6b3"], litShare: 0.45, glow: 1.1 },
     shadows: true,
     exposure: 1.15,

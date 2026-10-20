@@ -6,9 +6,11 @@ English | [日本語](README.ja.md)
 
 Paste a repository and its code becomes a city in your browser: folders are districts, files are buildings, files edited often grow into towers, and big files take up more ground. Fly around, click a building, and jump to that file on GitHub.
 
-![vite as a city](docs/screenshot.png)
+![express as a city](docs/screenshot.png)
 
-![express at dusk](docs/screenshot-dusk.png)
+| vitejs/vite | express at dusk |
+|---|---|
+| ![vite as a city](docs/screenshot-vite.png) | ![express at dusk](docs/screenshot-dusk.png) |
 
 > Status: v0.1. The city shows the repository as it is today. Replaying the commit history is next (see the roadmap).
 
@@ -21,6 +23,7 @@ Paste a repository and its code becomes a city in your browser: folders are dist
 | Height | How many commits edited the file (log scale: 1 edit = 3 floors, 10 = 9, 100 = 17, 1000 = 25) |
 | Ground | The file's size relative to the whole repository. **Balanced** (default) uses the square root so a few big images or lockfiles don't turn half the city into empty lots; **Exact share** is the plain ratio. |
 | Kind of building | Kind of file, see below |
+| Color | Real-world paint: each building picks its own wall and roof color from the theme's palette, so the city looks lived in rather than color-coded |
 
 | Building | Files |
 |---|---|

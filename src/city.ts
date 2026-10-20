@@ -215,7 +215,9 @@ export class CityView {
     buildings.forEach((b, i) => {
       matrix.makeScale(b.width, b.height, b.depth).setPosition(b.x, b.base, b.z);
       body.setMatrixAt(i, matrix);
-      body.setColorAt(i, color.set(colors.walls[b.seed % colors.walls.length]));
+      // A little light/dark variation, so neighbours with the same paint still differ.
+      const shade = (((b.seed >>> 16) % 11) - 5) * 0.012;
+      body.setColorAt(i, color.set(colors.walls[b.seed % colors.walls.length]).offsetHSL(0, 0, shade));
 
       const top = b.base + b.height;
       if (style.roof === "gable") {
