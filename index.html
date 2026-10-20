@@ -18,6 +18,20 @@
       </form>
       <div class="row">
         <label>Theme <select id="theme-select"></select></label>
+        <label>Ground
+          <select id="ground-select">
+            <option value="sqrt">Size (balanced)</option>
+            <option value="linear">Size (exact share)</option>
+          </select>
+        </label>
+        <label class="file-button">Open snapshot <input id="file-input" type="file" accept=".json,application/json" hidden /></label>
+      </div>
+      <details>
+        <summary>GitHub token (optional)</summary>
+        <p>Without a token, heights come from the latest 25 commits. A token reads up to 400 and opens private repositories. It is kept only in this browser.</p>
+        <input id="token-input" type="password" placeholder="github_pat_…" autocomplete="off" spellcheck="false" />
+      </details>
+      <div class="row">
         <span class="examples">Try: <a href="?repo=vitejs/vite">vite</a> · <a href="?repo=mrdoob/three.js">three.js</a> · <a href="?repo=expressjs/express">express</a></span>
       </div>
       <p id="status" role="status"></p>
