@@ -15,7 +15,6 @@ const CACHE_MINUTES = 30;
 const EXAMPLES = [
   { id: "vite", label: "vite" },
   { id: "express", label: "express" },
-  { id: "spotify-playlist-as-code", label: "spotify-playlist-as-code" },
 ];
 
 const KIND_LABELS: Record<BuildingKind, string> = {

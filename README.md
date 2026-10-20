@@ -38,7 +38,7 @@ Edit counts follow renames, so a file that moved keeps its history. Districts ar
 
 ## Use it
 
-**[keito118.github.io/commit-city](https://keito118.github.io/commit-city/)** opens on an example city. The examples (vite, express, spotify-playlist-as-code) were scanned ahead of time, so they show the full history and use no GitHub API requests.
+**[keito118.github.io/commit-city](https://keito118.github.io/commit-city/)** opens on an example city. The examples ([vite](https://github.com/vitejs/vite) and [express](https://github.com/expressjs/express), two well-known open-source projects) were scanned ahead of time, so they show the full history and use no GitHub API requests.
 
 To build any other repository, type `owner/repo` (or a GitHub URL) into the box, or put it in the URL:
 
