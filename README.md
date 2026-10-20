@@ -99,12 +99,18 @@ Built with TypeScript, [Three.js](https://threejs.org/), [d3-hierarchy](https://
 
 ## Roadmap
 
-| Version | What |
-|---|---|
-| v0.1 | The city as the repository is today ← now |
-| v0.2 | Replay the history: a timeline slider that grows the city commit by commit |
-| v0.3 | More themes (Japanese streets, European old town), video/GIF export |
-| v1.0 | Highlight hotspots (big files that change often), a gallery of famous open-source cities, and a write-up |
+Done (v0.1): the city as the repository is today, with real-looking buildings, three themes, a full-history scanner and example cities.
+
+Next, in no fixed order:
+
+- **A better-looking city**
+  - No paper-thin or physically impossible buildings
+  - Landmarks: parks, a signature tower (think Eiffel Tower), schools and other buildings a real city has
+- **Life in the streets**: people and cars moving around at random
+- **More examples** to explore without a token
+- **Town types**: choose between several kinds of town (Japanese streets, European old town, ...)
+- **Replay the history**: a timeline slider that grows the city commit by commit
+- **Later**: highlight hotspots (big files that change often), a gallery of famous open-source cities, video/GIF export, and a write-up
 
 ## License
 
