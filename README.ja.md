@@ -38,7 +38,7 @@
 
 ## 使い方
 
-**[keito118.github.io/commit-city](https://keito118.github.io/commit-city/)** を開くと、まずサンプルの街が出ます。サンプル（vite、express、spotify-playlist-as-code）は前もってスキャンしてあるので、全履歴が反映されていて、GitHubのAPIを1回も使いません。
+**[keito118.github.io/commit-city](https://keito118.github.io/commit-city/)** を開くと、まずサンプルの街が出ます。サンプル（有名なオープンソースの [vite](https://github.com/vitejs/vite) と [express](https://github.com/expressjs/express)）は前もってスキャンしてあるので、全履歴が反映されていて、GitHubのAPIを1回も使いません。
 
 ほかのリポジトリを街にするときは、入力欄に `owner/repo`（GitHubのURLでも可）を入れるか、URLに付けます。
 
