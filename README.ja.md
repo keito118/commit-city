@@ -38,14 +38,17 @@
 
 ## 使い方
 
-URLにリポジトリを付けてページを開きます。
+**[keito118.github.io/commit-city](https://keito118.github.io/commit-city/)** を開くと、まずサンプルの街が出ます。サンプル（vite、express、spotify-playlist-as-code）は前もってスキャンしてあるので、全履歴が反映されていて、GitHubのAPIを1回も使いません。
+
+ほかのリポジトリを街にするときは、入力欄に `owner/repo`（GitHubのURLでも可）を入れるか、URLに付けます。
 
 ```
 https://keito118.github.io/commit-city/?repo=vitejs/vite
-https://keito118.github.io/commit-city/?repo=mrdoob/three.js&theme=cyberpunk
+https://keito118.github.io/commit-city/?repo=expressjs/express&theme=dusk
+https://keito118.github.io/commit-city/?example=express
 ```
 
-または、入力欄に `owner/repo`（GitHubのURLでも可）を入れます。URLも一緒に変わるので、見ている街をそのまま共有できます。
+URLも一緒に変わるので、見ている街をそのまま共有できます。
 
 - ドラッグで回転、右ドラッグで移動、スクロールでズーム
 - ビルをクリックすると、編集回数、サイズ、リポジトリ内の割合、最後の編集日と、ファイルへのリンクが出る
@@ -57,8 +60,8 @@ GitHubのAPIでは、どのファイルが変わったかはコミットを1つ�
 
 | 方法 | 読む履歴 | メモ |
 |---|---|---|
-| トークンなし | 直近25コミット | トークンなしは1時間に60回までなので、高さは目安 |
-| GitHubトークン（**GitHub token** 欄） | 直近400コミット | 自分のPrivateリポジトリも開ける。トークンはブラウザの中にだけ保存。読み取り専用の **Contents** 権限だけの fine-grained token で十分 |
+| トークンなし | 直近25コミット | トークンなしは見ている人ごとに1時間60回まで。街2つ分くらい |
+| GitHubトークン（**GitHub token** 欄） | 直近400コミット | 1時間5000回まで使え、自分のPrivateリポジトリも開ける。読み取り専用の **Contents** 権限だけの fine-grained token で十分 |
 | `npm run scan` | 全履歴 | 手元のクローンを読むので、APIを使わない。大きいリポジトリやPrivateリポジトリにおすすめ |
 
 スキャナーの使い方：
@@ -68,6 +71,13 @@ npm run scan -- path/to/your/repo > my-repo.city.json
 ```
 
 できたファイルを **Open snapshot** で開く（ページにドロップしてもよい）。Node.js 22.18 以上が必要です。
+
+### リクエスト、上限、トークンについて
+
+- サーバーはありません。見ている人のブラウザが直接GitHubに聞きに行くので、上限は見ている人ごとに数えられ、誰かがたくさん使っても他の人の分は減りません。
+- トークン欄に入れたトークンは、入れた本人のものです。その人のブラウザ（`localStorage`）にだけ保存され、送り先は `api.github.com` だけです。サイト自体はトークンを持っていませんし、持たせるべきではありません。公開ページの中身は誰でも読めるからです。
+- コミットを読んでいる途中で上限に達しても、そこまで読めた分で街を描き、いつ上限が解除されるかを表示します。
+- APIで作った街はそのタブに30分間保存されるので、ページを再読み込みしてもリクエストを使いません。
 
 ## テーマ
 
@@ -82,6 +92,8 @@ npm test
 npm run build   # dist/ に静的サイトを出力
 npm run scan -- ../some-repo > some-repo.city.json
 ```
+
+サンプルは `public/examples/` にあります。新しくするときは、最新のクローンをスキャンして上書きします（例：`npm run scan -- ../vite > public/examples/vite.city.json`）。
 
 TypeScript、[Three.js](https://threejs.org/)、[d3-hierarchy](https://github.com/d3/d3-hierarchy)（treemap）、Vite で作っています。サーバーはなく、すべてブラウザで動きます。
 

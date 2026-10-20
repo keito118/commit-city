@@ -38,14 +38,17 @@ Edit counts follow renames, so a file that moved keeps its history. Districts ar
 
 ## Use it
 
-Open the page with a repository in the URL:
+**[keito118.github.io/commit-city](https://keito118.github.io/commit-city/)** opens on an example city. The examples (vite, express, spotify-playlist-as-code) were scanned ahead of time, so they show the full history and use no GitHub API requests.
+
+To build any other repository, type `owner/repo` (or a GitHub URL) into the box, or put it in the URL:
 
 ```
 https://keito118.github.io/commit-city/?repo=vitejs/vite
-https://keito118.github.io/commit-city/?repo=mrdoob/three.js&theme=cyberpunk
+https://keito118.github.io/commit-city/?repo=expressjs/express&theme=dusk
+https://keito118.github.io/commit-city/?example=express
 ```
 
-Or type `owner/repo` (or a GitHub URL) into the box. The URL updates as you go, so you can share the exact city you're looking at.
+The URL updates as you go, so you can share the exact city you're looking at.
 
 - Drag to orbit, right-drag to pan, scroll to zoom.
 - Click a building to see its edits, size, share of the repository and last edit, with a link to the file.
@@ -57,8 +60,8 @@ GitHub's API doesn't say which files a commit changed until you ask for that com
 
 | Source | History read | Notes |
 |---|---|---|
-| No token | Latest 25 commits | GitHub allows 60 requests an hour without a token, so heights are only a hint |
-| GitHub token (under **GitHub token**) | Latest 400 commits | Also opens your private repositories. Stored only in your browser. A fine-grained token with read-only **Contents** access is enough |
+| No token | Latest 25 commits | GitHub allows 60 requests an hour per visitor without a token: about two cities |
+| GitHub token (under **GitHub token**) | Latest 400 commits | 5,000 requests an hour, and opens your private repositories. A fine-grained token with read-only **Contents** access is enough |
 | `npm run scan` | Whole history | Reads a local clone, no API at all. Best for big or private repositories |
 
 To use the scanner:
@@ -68,6 +71,13 @@ npm run scan -- path/to/your/repo > my-repo.city.json
 ```
 
 Then click **Open snapshot** (or drop the file onto the page). Needs Node.js 22.18 or later.
+
+### Requests, limits and tokens
+
+- There is no server. Each visitor's browser talks to GitHub directly, so the limit is counted per visitor, and one busy visitor never uses up anyone else's.
+- A token you enter is yours: it stays in your browser (`localStorage`) and is only ever sent to `api.github.com`. The site has no token of its own, and never should, since anything in a public page can be read.
+- If the limit runs out while reading commits, the city is still drawn with the commits read so far, and the status line says when the limit resets.
+- A city fetched from the API is kept for 30 minutes in the tab, so reloading the page costs nothing.
 
 ## Themes
 
@@ -82,6 +92,8 @@ npm test
 npm run build   # static site in dist/
 npm run scan -- ../some-repo > some-repo.city.json
 ```
+
+The examples live in `public/examples/`. To refresh one, scan a fresh clone over it, for example `npm run scan -- ../vite > public/examples/vite.city.json`.
 
 Built with TypeScript, [Three.js](https://threejs.org/), [d3-hierarchy](https://github.com/d3/d3-hierarchy) (treemap) and Vite. No server: everything runs in the browser.
 

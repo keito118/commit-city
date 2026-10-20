@@ -62,6 +62,7 @@ const snapshot: CitySnapshot = {
   files: [...sizes].map(([path, size]) => ({ path, size, ...edits.get(path)! })),
   commitsScanned: commits.length,
   partialHistory: git("rev-parse", "--is-shallow-repository").trim() === "true",
+  scannedAt: new Date().toISOString(),
 };
 process.stdout.write(JSON.stringify(snapshot));
 process.stderr.write(`${snapshot.name}: ${snapshot.files.length} files, ${commits.length} commits\n`);

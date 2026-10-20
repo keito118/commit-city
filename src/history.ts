@@ -20,6 +20,8 @@ export interface CitySnapshot {
   commitsScanned: number;
   /** True when only part of the history was read (edit counts are a lower bound). */
   partialHistory: boolean;
+  /** ISO date of the scan, for snapshots made ahead of time. */
+  scannedAt?: string;
 }
 
 export type ChangeStatus = "A" | "M" | "D" | "R";

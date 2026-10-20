@@ -1,5 +1,5 @@
 import { CityView } from "./city";
-import { COMMIT_LIMIT, fetchSnapshot, parseRepo } from "./github";
+import { COMMIT_LIMIT, RateLimitError, fetchSnapshot, parseRepo } from "./github";
 import type { CitySnapshot } from "./history";
 import { layoutCity, type Building, type GroundScale } from "./layout";
 import type { BuildingKind } from "./languages";
@@ -8,6 +8,15 @@ import { THEMES, themeById } from "./themes";
 /** Above this many files the city gets too heavy for most laptops. */
 const MAX_FILES = 40000;
 const TOKEN_KEY = "commit-city:token";
+/** Cities fetched from the API are kept this long per tab, so a reload costs no requests. */
+const CACHE_MINUTES = 30;
+
+/** Cities scanned ahead of time (`npm run scan`) and shipped with the site. They cost no API requests. */
+const EXAMPLES = [
+  { id: "vite", label: "vite" },
+  { id: "express", label: "express" },
+  { id: "spotify-playlist-as-code", label: "spotify-playlist-as-code" },
+];
 
 const KIND_LABELS: Record<BuildingKind, string> = {
   tower: "Tower: C / C++ / Rust / Go / Java",
@@ -28,11 +37,15 @@ const groundSelect = $<HTMLSelectElement>("ground-select");
 const status = $<HTMLParagraphElement>("status");
 const info = $<HTMLElement>("info");
 const legend = $<HTMLElement>("legend");
+const tokenDetails = $<HTMLDetailsElement>("token-details");
+const examples = $<HTMLElement>("examples");
 
 const params = new URLSearchParams(location.search);
 let theme = themeById(params.get("theme"));
 let groundScale: GroundScale = params.get("ground") === "linear" ? "linear" : "sqrt";
 let current: CitySnapshot | null = null;
+let currentExample: string | null = null;
+let lastNotes: string[] = [];
 
 const view = new CityView($("city"), theme);
 
@@ -47,7 +60,7 @@ themeSelect.addEventListener("change", () => {
 groundSelect.value = groundScale;
 groundSelect.addEventListener("change", () => {
   groundScale = groundSelect.value === "linear" ? "linear" : "sqrt";
-  if (current) show(current);
+  if (current) show(current, currentExample, lastNotes);
   updateUrl();
 });
 
@@ -60,6 +73,20 @@ tokenInput.addEventListener("change", () => {
     // Storage blocked: the token still works for this visit.
   }
 });
+
+examples.append(
+  "Try: ",
+  ...EXAMPLES.flatMap((example, i) => {
+    const link = document.createElement("a");
+    link.href = `?example=${example.id}`;
+    link.textContent = example.label;
+    link.addEventListener("click", (event) => {
+      event.preventDefault();
+      void buildFromExample(example.id);
+    });
+    return i === 0 ? [link] : [" · ", link];
+  }),
+);
 
 form.addEventListener("submit", (event) => {
   event.preventDefault();
@@ -104,11 +131,37 @@ function setStatus(text: string, isError = false) {
 
 function updateUrl() {
   const next = new URLSearchParams();
-  if (current?.repo) next.set("repo", current.repo);
+  if (currentExample) next.set("example", currentExample);
+  else if (current?.repo) next.set("repo", current.repo);
   if (theme.id !== THEMES[0].id) next.set("theme", theme.id);
   if (groundScale !== "sqrt") next.set("ground", groundScale);
   const query = next.toString();
   history.replaceState(null, "", query ? `?${query}` : location.pathname);
+}
+
+function formatTime(date: Date | null | undefined): string {
+  return date ? date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "within the hour";
+}
+
+function cacheKey(repo: string, withToken: boolean) {
+  return `commit-city:cache:${repo.toLowerCase()}:${withToken ? "token" : "anonymous"}`;
+}
+
+function readCache(key: string): CitySnapshot | null {
+  try {
+    const cached = JSON.parse(sessionStorage.getItem(key) ?? "null") as { time: number; snapshot: CitySnapshot } | null;
+    return cached && Date.now() - cached.time < CACHE_MINUTES * 60_000 ? cached.snapshot : null;
+  } catch {
+    return null;
+  }
+}
+
+function writeCache(key: string, snapshot: CitySnapshot) {
+  try {
+    sessionStorage.setItem(key, JSON.stringify({ time: Date.now(), snapshot }));
+  } catch {
+    // Too big or storage blocked: the next load just asks GitHub again.
+  }
 }
 
 async function buildFromGitHub(raw: string) {
@@ -117,50 +170,108 @@ async function buildFromGitHub(raw: string) {
     setStatus("Enter a repository as owner/repo or a GitHub URL.", true);
     return;
   }
-  input.value = `${repo.owner}/${repo.name}`;
-  setStatus(`Fetching ${repo.owner}/${repo.name}…`);
+  const fullName = `${repo.owner}/${repo.name}`;
+  const token = tokenInput.value.trim() || undefined;
+  input.value = fullName;
   showInfo(null);
+
+  const key = cacheKey(fullName, token !== undefined);
+  const cached = readCache(key);
+  if (cached) {
+    show(cached, null, ["loaded from this tab's cache, no API requests used"]);
+    return;
+  }
+
+  setStatus(`Fetching ${fullName}…`);
   try {
-    const snapshot = await fetchSnapshot(repo.owner, repo.name, {
-      token: tokenInput.value.trim() || undefined,
-      onProgress: setStatus,
-    });
-    show(snapshot);
+    const { snapshot, rateLimitReset } = await fetchSnapshot(repo.owner, repo.name, { token, onProgress: setStatus });
+    writeCache(key, snapshot);
+    const notes: string[] = [];
+    if (rateLimitReset !== undefined) {
+      notes.push(
+        (snapshot.commitsScanned
+          ? `GitHub's request limit ran out after ${snapshot.commitsScanned} commits, so heights are partial`
+          : "GitHub's request limit ran out before any commits, so every building has the same height") +
+          `; it resets at ${formatTime(rateLimitReset)}${token ? "" : ", and a token raises the limit"}`,
+      );
+    } else if (snapshot.partialHistory) {
+      notes.push(
+        `heights count only the latest ${snapshot.commitsScanned} commits; ` +
+          `${token ? "" : `add a token (up to ${COMMIT_LIMIT.withToken}) or `}use \`npm run scan\` for the full history`,
+      );
+    }
+    show(snapshot, null, notes);
   } catch (error) {
+    if (error instanceof RateLimitError) {
+      tokenDetails.open = !token;
+      setStatus(
+        `GitHub's request limit is used up until ${formatTime(error.resetAt)}. ` +
+          (token
+            ? "Try again then, or open one of the examples."
+            : "Add a GitHub token below (5,000 requests an hour), or open one of the examples, which need no requests."),
+        true,
+      );
+      return;
+    }
     setStatus(error instanceof Error ? error.message : String(error), true);
   }
+}
+
+function parseSnapshot(text: string): CitySnapshot {
+  const snapshot = JSON.parse(text) as CitySnapshot;
+  if (snapshot.format !== "commit-city/1" || !Array.isArray(snapshot.files)) {
+    throw new Error("That file isn't a commit-city snapshot. Make one with `npm run scan`.");
+  }
+  return snapshot;
+}
+
+function scannedNote(snapshot: CitySnapshot): string[] {
+  return snapshot.scannedAt
+    ? [`full history as of ${new Date(snapshot.scannedAt).toLocaleDateString()}`]
+    : [];
 }
 
 async function buildFromFile(file: File) {
   showInfo(null);
   try {
-    const snapshot = JSON.parse(await file.text()) as CitySnapshot;
-    if (snapshot.format !== "commit-city/1" || !Array.isArray(snapshot.files)) {
-      throw new Error("That file isn't a commit-city snapshot. Make one with `npm run scan`.");
-    }
+    const snapshot = parseSnapshot(await file.text());
     input.value = snapshot.repo ?? "";
-    show(snapshot);
+    show(snapshot, null, scannedNote(snapshot));
   } catch (error) {
     setStatus(error instanceof Error ? error.message : String(error), true);
   }
 }
 
-function show(snapshot: CitySnapshot) {
+async function buildFromExample(id: string) {
+  const example = EXAMPLES.find((e) => e.id === id);
+  if (!example) {
+    setStatus(`There is no example called "${id}".`, true);
+    return;
+  }
+  showInfo(null);
+  setStatus(`Loading ${example.label}…`);
+  try {
+    const res = await fetch(`./examples/${example.id}.city.json`);
+    if (!res.ok) throw new Error(`Couldn't load the ${example.label} example (${res.status}).`);
+    const snapshot = parseSnapshot(await res.text());
+    input.value = snapshot.repo ?? "";
+    show(snapshot, example.id, scannedNote(snapshot));
+  } catch (error) {
+    setStatus(error instanceof Error ? error.message : String(error), true);
+  }
+}
+
+function show(snapshot: CitySnapshot, exampleId: string | null, notes: string[]) {
   let files = snapshot.files;
-  const notes: string[] = [];
   if (files.length > MAX_FILES) {
     files = files.slice(0, MAX_FILES);
-    notes.push(`showing the first ${MAX_FILES.toLocaleString()} files`);
-  }
-  if (snapshot.partialHistory) {
-    notes.push(
-      `heights count only the latest ${snapshot.commitsScanned} commits; ` +
-        `add a token (up to ${COMMIT_LIMIT.withToken}) or use \`npm run scan\` for the full history`,
-    );
+    notes = [...notes, `showing the first ${MAX_FILES.toLocaleString()} files`];
   }
   const layout = layoutCity(files, groundScale);
   view.show(layout);
   current = snapshot;
+  currentExample = exampleId;
+  lastNotes = notes;
   updateUrl();
   setStatus(
     `${snapshot.name}@${snapshot.branch}: ${files.length.toLocaleString()} files, ` +
@@ -231,9 +342,12 @@ function renderLegend() {
 }
 
 renderLegend();
-const initial = params.get("repo");
-if (initial) {
-  void buildFromGitHub(initial);
+const initialExample = params.get("example");
+const initialRepo = params.get("repo");
+if (initialExample) {
+  void buildFromExample(initialExample);
+} else if (initialRepo) {
+  void buildFromGitHub(initialRepo);
 } else {
-  setStatus("Enter a GitHub repository, or drop a snapshot made with `npm run scan`.");
+  void buildFromExample(EXAMPLES[0].id);
 }
