@@ -97,6 +97,14 @@ The examples live in `public/examples/`. To refresh one, scan a fresh clone over
 
 Built with TypeScript, [Three.js](https://threejs.org/), [d3-hierarchy](https://github.com/d3/d3-hierarchy) (treemap) and Vite. No server: everything runs in the browser.
 
+## Why I made it, and what was tricky
+
+I wanted to see the shape of a codebase at a glance: where the busy parts are, what never changes, which folder is the downtown. Tools like CodeCity and Gource do this, but they need an install or a local clone. commit-city works in the browser from a URL.
+
+- **GitHub doesn't say which files a commit changed** until you ask for that commit, so heights cost one API request per commit, and the anonymous limit is 60 an hour. That led to the history scanner, the pre-scanned examples, and reading the rate-limit headers to draw a partial city instead of failing.
+- **File size is a bad ruler on its own.** In vite, a few images are half the bytes, and an exact-share layout turned half the city into empty lots. The default ground uses the square root, which keeps the order but tames the outliers.
+- **Tens of thousands of buildings have to stay smooth.** Each kind of building is one instanced mesh, and windows are drawn in the fragment shader from each building's real size instead of textures.
+
 ## Roadmap
 
 Done (v0.1): the city as the repository is today, with real-looking buildings, three themes, a full-history scanner and example cities.
